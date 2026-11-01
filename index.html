@@ -318,13 +318,13 @@ footer { padding-block: 36px 0; display: flex; flex-wrap: wrap; justify-content:
       </div>
     </div>
 
-    <div class="hud" id="hud" data-s="monitor">
+    <!-- <div class="hud" id="hud" data-s="monitor">
       <div class="hud-head">
         <span class="label">Accelerometer trace &middot; simulated signal</span>
         <span class="hud-state"><i></i><span id="hudText">Monitoring</span></span>
       </div>
       <canvas id="scope" aria-label="Animated sensor signal that spikes on a simulated impact, then shows an alert being sent" role="img"></canvas>
-    </div>
+    </div> -->
 
     <div class="marquee" aria-label="Skills">
       <div class="track">
@@ -526,73 +526,73 @@ footer { padding-block: 36px 0; display: flex; flex-wrap: wrap; justify-content:
     })();
   }
 
-  /* sensor scope: noise, impact spike, alert, repeat */
-  var cv = document.getElementById('scope'), hud = document.getElementById('hud'), hudText = document.getElementById('hudText');
-  var ctx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
-  var STEP = 3, buf = [], CYCLE = 9, start = performance.now(), ripples = [], lastState = '', lastImpactFire = -1;
-  function size() {
-    W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var N = Math.ceil(W / STEP) + 2;
-    while (buf.length < N) buf.unshift(0);
-    if (buf.length > N) buf.splice(0, buf.length - N);
-  }
-  function setState(s, txt) { if (s === lastState) return; lastState = s; hud.setAttribute('data-s', s); hudText.textContent = txt; }
-  function sample(t) {
-    var ph = t % CYCLE, v = Math.sin(t * 5) * 0.06 + (Math.random() - 0.5) * 0.12;
-    if (ph < 5.5) { setState('monitor', 'Monitoring'); lastImpactFire = -1; }
-    else if (ph < 6.7) {
-      setState('impact', 'Impact detected');
-      var k = ph - 5.5, amp = Math.exp(-k * 3.2);
-      v += Math.sin(k * 38) * 0.95 * amp;
-      if (lastImpactFire < 0) { lastImpactFire = 1; ripples.push({ t0: performance.now() }); }
-    }
-    else if (ph < 8.6) { setState('alert', 'Alert sent to contacts'); v *= 0.7; }
-    else { setState('monitor', 'Monitoring'); }
-    return v;
-  }
-  function col(n) { return getComputedStyle(root).getPropertyValue(n).trim(); }
-  function draw() {
-    var line = col('--line'), sig = col('--signal'), acc = col('--accent'), mid = H / 2;
-    ctx.clearRect(0, 0, W, H);
-    ctx.lineWidth = 1; ctx.strokeStyle = line; ctx.globalAlpha = .7;
-    for (var gy = 1; gy < 4; gy++) { ctx.beginPath(); ctx.moveTo(0, gy * H / 4); ctx.lineTo(W, gy * H / 4); ctx.stroke(); }
-    for (var gx = 0; gx < W; gx += 60) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
-    ctx.globalAlpha = 1;
-    var hot = hud.getAttribute('data-s') !== 'monitor';
-    ctx.lineWidth = 2; ctx.strokeStyle = hot ? acc : sig; ctx.lineJoin = 'round'; ctx.beginPath();
-    for (var i = 0; i < buf.length; i++) {
-      var x = i * STEP, y = mid - buf[i] * (H * 0.42);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    var hx = (buf.length - 1) * STEP, hy = mid - buf[buf.length - 1] * (H * 0.42);
-    ctx.fillStyle = hot ? acc : sig; ctx.beginPath(); ctx.arc(hx, hy, 4, 0, 7); ctx.fill();
-    var now = performance.now();
-    ripples = ripples.filter(function (r) { return now - r.t0 < 1400; });
-    ripples.forEach(function (r) {
-      var p = (now - r.t0) / 1400;
-      ctx.globalAlpha = 1 - p; ctx.strokeStyle = acc; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(hx, hy, 6 + p * 90, 0, 7); ctx.stroke();
-    });
-    ctx.globalAlpha = 1;
-  }
-  size();
-  addEventListener('resize', size);
-  if (reduce) {
-    for (var q = 0; q < buf.length; q++) buf[q] = Math.sin(q * 0.4) * 0.06 + (q > buf.length - 30 && q < buf.length - 12 ? Math.sin(q) * 0.7 * Math.exp(-(q - (buf.length - 30)) * 0.15) : 0);
-    draw();
-  } else {
-    var acc = 0, last = performance.now(), visible = true;
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(hud);
-    (function frame(ts) {
-      var dt = Math.min(64, ts - last); last = ts; acc += dt;
-      if (visible) {
-        while (acc >= 16) { acc -= 16; buf.push(sample((performance.now() - start) / 1000)); buf.shift(); }
-        draw();
-      } else acc = 0;
-      requestAnimationFrame(frame);
-    })(performance.now());
-  }
+  // /* sensor scope: noise, impact spike, alert, repeat */
+  // var cv = document.getElementById('scope'), hud = document.getElementById('hud'), hudText = document.getElementById('hudText');
+  // var ctx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+  // var STEP = 3, buf = [], CYCLE = 9, start = performance.now(), ripples = [], lastState = '', lastImpactFire = -1;
+  // function size() {
+  //   W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  //   var N = Math.ceil(W / STEP) + 2;
+  //   while (buf.length < N) buf.unshift(0);
+  //   if (buf.length > N) buf.splice(0, buf.length - N);
+  // }
+  // function setState(s, txt) { if (s === lastState) return; lastState = s; hud.setAttribute('data-s', s); hudText.textContent = txt; }
+  // function sample(t) {
+  //   var ph = t % CYCLE, v = Math.sin(t * 5) * 0.06 + (Math.random() - 0.5) * 0.12;
+  //   if (ph < 5.5) { setState('monitor', 'Monitoring'); lastImpactFire = -1; }
+  //   else if (ph < 6.7) {
+  //     setState('impact', 'Impact detected');
+  //     var k = ph - 5.5, amp = Math.exp(-k * 3.2);
+  //     v += Math.sin(k * 38) * 0.95 * amp;
+  //     if (lastImpactFire < 0) { lastImpactFire = 1; ripples.push({ t0: performance.now() }); }
+  //   }
+  //   else if (ph < 8.6) { setState('alert', 'Alert sent to contacts'); v *= 0.7; }
+  //   else { setState('monitor', 'Monitoring'); }
+  //   return v;
+  // }
+  // function col(n) { return getComputedStyle(root).getPropertyValue(n).trim(); }
+  // function draw() {
+  //   var line = col('--line'), sig = col('--signal'), acc = col('--accent'), mid = H / 2;
+  //   ctx.clearRect(0, 0, W, H);
+  //   ctx.lineWidth = 1; ctx.strokeStyle = line; ctx.globalAlpha = .7;
+  //   for (var gy = 1; gy < 4; gy++) { ctx.beginPath(); ctx.moveTo(0, gy * H / 4); ctx.lineTo(W, gy * H / 4); ctx.stroke(); }
+  //   for (var gx = 0; gx < W; gx += 60) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+  //   ctx.globalAlpha = 1;
+  //   var hot = hud.getAttribute('data-s') !== 'monitor';
+  //   ctx.lineWidth = 2; ctx.strokeStyle = hot ? acc : sig; ctx.lineJoin = 'round'; ctx.beginPath();
+  //   for (var i = 0; i < buf.length; i++) {
+  //     var x = i * STEP, y = mid - buf[i] * (H * 0.42);
+  //     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  //   }
+  //   ctx.stroke();
+  //   var hx = (buf.length - 1) * STEP, hy = mid - buf[buf.length - 1] * (H * 0.42);
+  //   ctx.fillStyle = hot ? acc : sig; ctx.beginPath(); ctx.arc(hx, hy, 4, 0, 7); ctx.fill();
+  //   var now = performance.now();
+  //   ripples = ripples.filter(function (r) { return now - r.t0 < 1400; });
+  //   ripples.forEach(function (r) {
+  //     var p = (now - r.t0) / 1400;
+  //     ctx.globalAlpha = 1 - p; ctx.strokeStyle = acc; ctx.lineWidth = 2;
+  //     ctx.beginPath(); ctx.arc(hx, hy, 6 + p * 90, 0, 7); ctx.stroke();
+  //   });
+  //   ctx.globalAlpha = 1;
+  // }
+  // size();
+  // addEventListener('resize', size);
+  // if (reduce) {
+  //   for (var q = 0; q < buf.length; q++) buf[q] = Math.sin(q * 0.4) * 0.06 + (q > buf.length - 30 && q < buf.length - 12 ? Math.sin(q) * 0.7 * Math.exp(-(q - (buf.length - 30)) * 0.15) : 0);
+  //   draw();
+  // } else {
+  //   var acc = 0, last = performance.now(), visible = true;
+  //   if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(hud);
+  //   (function frame(ts) {
+  //     var dt = Math.min(64, ts - last); last = ts; acc += dt;
+  //     if (visible) {
+  //       while (acc >= 16) { acc -= 16; buf.push(sample((performance.now() - start) / 1000)); buf.shift(); }
+  //       draw();
+  //     } else acc = 0;
+  //     requestAnimationFrame(frame);
+  //   })(performance.now());
+  // }
 
   /* portrait upload */
   var KEY = 'sg-portrait';
